@@ -22,7 +22,7 @@
   },
   "scripts": {
     "start": "npm-run-all --parallel start:**",
-    "start:client": "react-scripts start",
+    "start:client": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "start:server": "nodemon ./server/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
