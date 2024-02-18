@@ -16,9 +16,9 @@ function OrderConfirm() {
 
     let [payResult] = useState({});
 
-    /* 결과를 받고자 하는 callback 함수 (callback 함수를 설정할 경우 PCD_RST_URL 이 작동하지 않음)
-     * ref: https://developer.payple.kr/service/faq
-     */
+    /* callback function to receive the result (PCD_RST_URL does not work when setting the callback function)
+      * ref: https://developer.payple.kr/service/faq
+      */
     const getResult = (res) => {
         if (res.PCD_PAY_RST === 'success') {
             payResult = res;
@@ -76,38 +76,40 @@ function OrderConfirm() {
          *  최초결제 및 단건(일반,비회원)결제
          */
         else {
-            // 간편결제 여부('N')
+            // Whether to make simple payment ('N')
             if (content.simple_flag !== 'Y' || content.payple_payer_id === '') {
-                obj.PCD_PAYER_NO = content.buyer_no;				  // (선택) 가맹점 회원 고유번호 (결과전송 시 입력값 그대로 RETURN)
-                obj.PCD_PAYER_NAME = content.buyer_name;			  // (선택) 결제자 이름
-                obj.PCD_PAYER_HP = content.buyer_hp;				  // (선택) 결제자 휴대폰 번호
-                obj.PCD_PAYER_EMAIL = content.buyer_email;			  // (선택) 결제자 Email
-                obj.PCD_PAY_GOODS = content.buy_goods;				  // (필수) 결제 상품
-                obj.PCD_PAY_TOTAL = content.buy_total;				  // (필수) 결제 금액
-                obj.PCD_PAY_TAXTOTAL = content.buy_taxtotal;		  // (선택) 부가세 (복합과세인 경우 필수)
-                obj.PCD_PAY_ISTAX = content.buy_istax;				  // (선택) 과세여부 (과세: Y | 비과세(면세): N)
-                obj.PCD_PAY_OID = content.order_num;				  // 주문번호 (미입력 시 임의 생성)
-                obj.PCD_REGULER_FLAG = content.is_reguler;			  // (선택) 정기결제 여부 (Y|N)
-                obj.PCD_PAY_YEAR = content.pay_year;				  // (PCD_REGULER_FLAG = Y 일때 필수) [정기결제] 결제 구분 년도 (PCD_REGULER_FLAG : 'Y' 일때 필수)
-                obj.PCD_PAY_MONTH = content.pay_month;				  // (PCD_REGULER_FLAG = Y 일때 필수) [정기결제] 결제 구분 월 (PCD_REGULER_FLAG : 'Y' 일때 필수)
-                obj.PCD_TAXSAVE_FLAG = content.is_taxsave;			  // (선택) 현금영수증 발행 여부 (Y|N)
+                console.log("case 1: ====================", obj);
+                obj.PCD_PAYER_NO = content.buyer_no; // (Optional) Merchant member identification number (RETURN as is the entered value when sending results)
+                obj.PCD_PAYER_NAME = content.buyer_name; // (Optional) Payer name
+                obj.PCD_PAYER_HP = content.buyer_hp; // (Optional) Payer mobile phone number
+                obj.PCD_PAYER_EMAIL = content.buyer_email; // (Optional) Payer Email
+                obj.PCD_PAY_GOODS = content.buy_goods; // (Required) Payment product
+                obj.PCD_PAY_TOTAL = content.buy_total; // (required) payment amount
+                obj.PCD_PAY_TAXTOTAL = content.buy_taxtotal; // (Optional) VAT (required in case of complex taxation)
+                obj.PCD_PAY_ISTAX = content.buy_istax; // (Optional) Taxation (Taxation: Y | Non-taxation (tax exemption): N)
+                obj.PCD_PAY_OID = content.order_num; // Order number (randomly generated if not entered)
+                obj.PCD_REGULER_FLAG = content.is_reguler; // (Optional) Whether to make regular payment (Y|N)
+                obj.PCD_PAY_YEAR = content.pay_year; // (Required when PCD_REGULER_FLAG = Y) [Regular payment] Payment classification year (PCD_REGULER_FLAG: Required when 'Y')
+                obj.PCD_PAY_MONTH = content.pay_month; // (Required when PCD_REGULER_FLAG = Y) [Regular payment] Payment type Month (PCD_REGULER_FLAG: Required when 'Y')
+                obj.PCD_TAXSAVE_FLAG = content.is_taxsave; // (Optional) Whether to issue a cash receipt (Y|N)
             }
-            // 간편결제 여부('Y'), 등록된 빌링키(PCD_PAYER_ID)의 결제창 호출
+            // Whether to make a simple payment ('Y'), call the payment window of the registered billing key (PCD_PAYER_ID)
             else if (content.simple_flag === 'Y' && content.payple_payer_id !== '') {
-                obj.PCD_SIMPLE_FLAG = content.simple_flag;			  // 간편결제 여부 (Y|N)
-                //-- PCD_PAYER_ID 는 소스상에 표시하지 마시고 반드시 Server Side Script 를 이용하여 불러오시기 바랍니다. --//
-                obj.PCD_PAYER_ID = content.payple_payer_id;			  // 결제자 고유ID (본인인증 된 결제회원 고유 KEY)
+                console.log("case 2: ====================", obj);
+                obj.PCD_SIMPLE_FLAG = content.simple_flag; // Simple payment (Y|N)
+                //-- Do not display PCD_PAYER_ID in the source, but be sure to load it using Server Side Script. --//
+                obj.PCD_PAYER_ID = content.payple_payer_id; // Payer’s unique ID (identified payment member’s unique KEY)
 
-                obj.PCD_PAYER_NO = content.buyer_no;				  // (선택) 가맹점 회원 고유번호 (결과전송 시 입력값 그대로 RETURN)
-                obj.PCD_PAY_GOODS = content.buy_goods;				  // (필수) 결제 상품
-                obj.PCD_PAY_TOTAL = content.buy_total;				  // (필수) 결제 금액
-                obj.PCD_PAY_TAXTOTAL = content.buy_taxtotal;		  // (선택) 부가세(복합과세인 경우 필수)
-                obj.PCD_PAY_ISTAX = content.buy_istax;				  // (선택) 과세여부 (과세: Y | 비과세(면세): N)
-                obj.PCD_PAY_OID = content.order_num;				  // 주문번호 (미입력 시 임의 생성)
-                obj.PCD_REGULER_FLAG = content.is_reguler;			  // (선택) 정기결제 여부 (Y|N)
-                obj.PCD_PAY_YEAR = content.pay_year;				  // (PCD_REGULER_FLAG = Y 일때 필수) [정기결제] 결제 구분 년도 (PCD_REGULER_FLAG : 'Y' 일때 필수)
-                obj.PCD_PAY_MONTH = content.pay_month;				  // (PCD_REGULER_FLAG = Y 일때 필수) [정기결제] 결제 구분 월 (PCD_REGULER_FLAG : 'Y' 일때 필수)
-                obj.PCD_TAXSAVE_FLAG = content.is_taxsave;			  // (선택) 현금영수증 발행 여부 (Y|N)
+                obj.PCD_PAYER_NO = content.buyer_no; // (Optional) Merchant member identification number (RETURN as is the entered value when sending results)
+                obj.PCD_PAY_GOODS = content.buy_goods; // (Required) Payment product
+                obj.PCD_PAY_TOTAL = content.buy_total; // (required) payment amount
+                obj.PCD_PAY_TAXTOTAL = content.buy_taxtotal; // (Optional) VAT (required in case of complex taxation)
+                obj.PCD_PAY_ISTAX = content.buy_istax; // (Optional) Taxation (Taxation: Y | Non-taxation (tax exemption): N)
+                obj.PCD_PAY_OID = content.order_num; // Order number (randomly generated if not entered)
+                obj.PCD_REGULER_FLAG = content.is_reguler; // (Optional) Whether to make regular payment (Y|N)
+                obj.PCD_PAY_YEAR = content.pay_year; // (Required when PCD_REGULER_FLAG = Y) [Regular payment] Payment classification year (PCD_REGULER_FLAG: Required when 'Y')
+                obj.PCD_PAY_MONTH = content.pay_month; // (Required when PCD_REGULER_FLAG = Y) [Regular payment] Payment type Month (PCD_REGULER_FLAG: Required when 'Y')
+                obj.PCD_TAXSAVE_FLAG = content.is_taxsave; // (Optional) Whether to issue a cash receipt (Y|N)
             }
         }
 

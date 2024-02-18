@@ -8,7 +8,7 @@ function OrderResult() {
     const location = useLocation();
     const payResult = location.search ? JSON.parse(decodeURIComponent(location.search.substring(1))) : location.state && location.state.payResult ? location.state.payResult : null;
 
-    // 받아오는 데이터가 없을 경우 '/'로 리다이렉트
+    // If there is no data to be received, redirect to '/'
     if (!payResult) {
         return (
             <div>
@@ -18,8 +18,8 @@ function OrderResult() {
     }
 
     /*
-     * 결제승인요청 파라미터 세팅 ('결제승인요청' 버튼 클릭시 호출)
-     */
+      * Payment approval request parameter setting (called when clicking the ‘Payment approval request’ button)
+      */
     const handlePayConfirm = (e) => {
         e.preventDefault();
         console.log('payResult Value', payResult);
@@ -87,9 +87,9 @@ function OrderResult() {
     }
 
     /*
-     * 환불(승인취소) 파라미터 세팅 ('결제승인취소' 버튼 클릭시 호출)
-     * ref: https://developer.payple.kr/etc-api/cancel-payment
-     */
+      * Setting refund (cancellation of approval) parameters (called when clicking the ‘Cancel payment approval’ button)
+      * ref: https://developer.payple.kr/etc-api/cancel-payment
+      */
     const handlePayRefund = (e) => {
         e.preventDefault();
         if (window.confirm('환불(승인취소)요청을 전송합니다. \n진행하시겠습니까?')) {
